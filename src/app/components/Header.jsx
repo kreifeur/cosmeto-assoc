@@ -8,7 +8,7 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="bg-white text-blue-900 py-4 px-6 shadow-md sticky top-0 z-50">
+    <header className="bg-white text-blue-900 py-4 px-6 shadow-md sticky top-0 z-50 w-full">
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center">
           <img className="w-[200px]" src={logo.src} alt="logo" srcSet="" />
@@ -36,6 +36,13 @@ const Header = () => {
             className="hover:text-yellow-300 transition-colors"
           >
             Galerie
+          </Link>
+
+          <Link
+            href="/blog"
+            className="hover:text-yellow-300 transition-colors"
+          >
+            Blog
           </Link>
           <Link
             href="/membership"
@@ -100,6 +107,13 @@ const Header = () => {
               className="hover:text-yellow-300 transition-colors"
             >
               Galerie
+            </Link>
+
+            <Link
+              href="/blog"
+              className="hover:text-yellow-300 transition-colors"
+            >
+              Blog
             </Link>
             <Link
               href="/membership"
