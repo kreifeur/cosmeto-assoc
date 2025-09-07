@@ -45,9 +45,9 @@ const Events = () => {
         </div>
         
         <div className="text-center mt-10">
-          <button className="px-6 py-3 bg-blue-800 text-white rounded-md hover:bg-blue-700 transition-colors font-medium">
+          <a href="/events" className="px-6 py-3 bg-blue-800 text-white rounded-md hover:bg-blue-700 transition-colors font-medium">
             Voir tous les événements
-          </button>
+          </a>
         </div>
       </div>
     </section>

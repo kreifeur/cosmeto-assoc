@@ -282,10 +282,10 @@ export default function Blog() {
 
       <Header />
       
-      <main className="min-h-screen bg-blue-50 py-12">
-        <div className="container mx-auto px-4">
+      <main className="min-h-screen  bg-blue-50 py-12 ">
+        <div className="container mx-auto px-4 ">
           {/* Blog Header */}
-          <section className="w-full py-12 mb-8 text-center">
+          <section className="w-full  mb-8 text-center">
             <h1 className="text-4xl font-bold text-blue-800 mb-4">Blog Beauté</h1>
             <p className="text-lg text-gray-700 max-w-2xl mx-auto">
               Découvrez les dernières tendances, conseils d'experts et actualités
@@ -294,7 +294,7 @@ export default function Blog() {
           </section>
 
           {/* Search and Filter */}
-          <section className="w-full max-w-4xl mx-auto mb-12">
+          <section className="w-full max-w-5xl mx-auto mb-12 ">
             <div className="flex sm:flex-row flex-col gap-4 items-center justify-between mb-8">
               <div className="relative w-full sm:w-96">
                 <input
@@ -373,7 +373,7 @@ export default function Blog() {
           </section>
 
           {/* Popular Posts */}
-          <section className="w-full max-w-4xl mx-auto mb-16">
+          <section className="w-full max-w-8xl mx-auto mb-16">
             <h2 className="text-3xl font-bold text-center text-blue-800 mb-6">
               Articles Populaires
             </h2>

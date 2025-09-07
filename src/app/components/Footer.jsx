@@ -1,4 +1,5 @@
 // components/Footer.js
+import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
 const Footer = () => {
   return (
     <footer className="bg-blue-900 text-white py-12 px-6 w-full">
@@ -10,19 +11,19 @@ const Footer = () => {
             <div className="flex space-x-4">
               <a href="#" className="h-10 w-10 bg-blue-800 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
                 <span className="sr-only">Facebook</span>
-                📘
+                <FaFacebookF/>
               </a>
               <a href="#" className="h-10 w-10 bg-blue-800 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
                 <span className="sr-only">Twitter</span>
-                🐦
+              <FaTwitter/>
               </a>
               <a href="#" className="h-10 w-10 bg-blue-800 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
                 <span className="sr-only">LinkedIn</span>
-                💼
+                <FaLinkedin/>
               </a>
               <a href="#" className="h-10 w-10 bg-blue-800 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
                 <span className="sr-only">Instagram</span>
-                📸
+                <FaInstagram/>
               </a>
             </div>
           </div>

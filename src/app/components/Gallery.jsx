@@ -20,9 +20,9 @@ const Gallery = () => {
         </div>
         
         <div className="text-center mt-10">
-          <button className="px-6 py-3 bg-blue-800 text-white rounded-md hover:bg-blue-700 transition-colors font-medium">
+          <a href="/gallery" className="px-6 py-3 bg-blue-800 text-white rounded-md hover:bg-blue-700 transition-colors font-medium">
             Voir toute la galerie
-          </button>
+          </a>
         </div>
       </div>
     </section>

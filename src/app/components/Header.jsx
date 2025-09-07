@@ -85,7 +85,7 @@ const Header = () => {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden bg-blue-800 mt-4 py-4 px-6 rounded-lg">
+        <div className="md:hidden bg-blue-800 mt-4 py-4 px-6 rounded-lg text-white">
           <nav className="flex flex-col space-y-3">
             <Link href="/" className="hover:text-yellow-300 transition-colors">
               Accueil
@@ -127,6 +127,14 @@ const Header = () => {
             >
               Contact
             </Link>
+
+            <Link
+              href="/login"
+              className="hover:text-yellow-300 transition-colors"
+            >
+              Connexion
+            </Link>
+
           </nav>
           <div className="flex flex-col space-y-3 mt-4">
             <div className="hidden md:flex space-x-4">

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
+import logo from "../../../public/logo.png"
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -161,13 +162,8 @@ export default function Register() {
       <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <div className="flex justify-center">
-            <div className="w-16 h-16 bg-blue-800 rounded-full flex items-center justify-center">
-              <span className="text-white text-2xl font-bold">AC</span>
-            </div>
+           <img className='w-[200px] ' src={logo.src} alt="logo" srcSet="" />
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Devenir membre
-          </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Rejoignez notre communauté de professionnels
           </p>

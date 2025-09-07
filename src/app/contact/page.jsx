@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Head from 'next/head';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import {FaTwitter, FaInstagram, FaLinkedin, FaFacebookF } from "react-icons/fa";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -202,19 +203,19 @@ export default function Contact() {
                 <div className="flex space-x-4">
                   <a href="#" className="h-12 w-12 bg-blue-800 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
                     <span className="sr-only">Facebook</span>
-                    <span className="text-xl">📘</span>
+                    <FaFacebookF/>
                   </a>
                   <a href="#" className="h-12 w-12 bg-blue-800 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
                     <span className="sr-only">Twitter</span>
-                    <span className="text-xl">🐦</span>
+                    <FaTwitter/>
                   </a>
                   <a href="#" className="h-12 w-12 bg-blue-800 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
                     <span className="sr-only">LinkedIn</span>
-                    <span className="text-xl">💼</span>
+                    <FaLinkedin/>
                   </a>
                   <a href="#" className="h-12 w-12 bg-blue-800 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
                     <span className="sr-only">Instagram</span>
-                    <span className="text-xl">📸</span>
+                    <FaInstagram/>
                   </a>
                 </div>
               </div>

@@ -8,10 +8,10 @@ const Hero = () => {
           Réunissant les professionnels de la cosmétologie pour promouvoir l'excellence, l'innovation et les bonnes pratiques dans le secteur.
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <button className="px-6 py-3 bg-yellow-500 text-blue-900 rounded-md hover:bg-yellow-400 transition-colors font-medium text-lg">
+          <a href="/events" className="px-6 py-3 bg-yellow-500 text-blue-900 rounded-md hover:bg-yellow-400 transition-colors font-medium text-lg">
             Découvrir nos activités
-          </button>
-          <a href="/register" className="px-6 py-3 border-2 border-white rounded-md hover:bg-white hover:text-blue-800 transition-colors font-medium text-lg">
+          </a>
+          <a href="/membership" className="px-6 py-3 border-2 border-white rounded-md hover:bg-white hover:text-blue-800 transition-colors font-medium text-lg">
             Devenir membre
           </a>
         </div>
