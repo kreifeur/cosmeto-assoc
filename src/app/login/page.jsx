@@ -1,6 +1,7 @@
-// pages/login.js (version sans useRouter)
+// app/login/page.js
 "use client"
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Head from 'next/head';
 import Link from 'next/link';
 import logo from "../../../public/logo.png"
@@ -12,6 +13,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,25 +21,46 @@ export default function Login() {
     setError('');
 
     try {
-      // Simulation de requête d'authentification
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
       // Validation basique
       if (!email || !password) {
         throw new Error('Veuillez remplir tous les champs');
       }
 
-      if (email === 'demo@cosmetologie.fr' && password === 'demo123') {
+      // Appel à l'API Next.js interne
+      const response = await fetch('/api/auth/signin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Erreur de connexion');
+      }
+
+      if (data.success) {
         // Connexion réussie
-        console.log('Connexion réussie!');
+        console.log('Connexion réussie!', data);
+        
+        // Stocker le token d'accès et les informations utilisateur
+        localStorage.setItem("authToken", data.data.accessToken);
+        localStorage.setItem("refreshToken", data.data.refreshToken);
+        localStorage.setItem("user", JSON.stringify(data.data.user));
+        
         setSuccess(true);
         
-        // Redirection simple sans router
+        // Redirection avec le router Next.js
         setTimeout(() => {
-          window.location.href = '/dashboard';
+          router.push('/dashboard');
         }, 2000);
       } else {
-        throw new Error('Email ou mot de passe incorrect');
+        throw new Error(data.message || 'Email ou mot de passe incorrect');
       }
     } catch (err) {
       setError(err.message);
@@ -63,11 +86,11 @@ export default function Login() {
       <Head>
         <title>Connexion - Association de Cosmétologie</title>
         <meta name="description" content="Connectez-vous à votre espace membre" />
-        <link rel="icon" href="/favicon.ico" />
       </Head>
-        <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 ">
+      
+      <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 ">
         <div className="sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center ">
-           <img className='w-[200px] ' src={logo.src} alt="logo" srcSet="" />
+          <img className='w-[200px] ' src={logo.src} alt="logo" />
           <p className="mt-2 text-center text-sm text-gray-600">
             Connectez-vous à votre espace membre
           </p>
@@ -101,7 +124,7 @@ export default function Login() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                    placeholder="votre@email.com"
+                    placeholder="john@example.com"
                     disabled={isLoading}
                   />
                 </div>
@@ -121,7 +144,7 @@ export default function Login() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                    placeholder="Votre mot de passe"
+                    placeholder="password123"
                     disabled={isLoading}
                   />
                 </div>
@@ -144,7 +167,7 @@ export default function Login() {
                 </div>
 
                 <div className="text-sm">
-                  <Link href="/connexion" className="font-medium text-blue-600 hover:text-blue-500">
+                  <Link href="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
                     Mot de passe oublié ?
                   </Link>
                 </div>
@@ -196,9 +219,9 @@ export default function Login() {
             <div className="mt-6 p-4 bg-blue-50 rounded-md">
               <h3 className="text-sm font-medium text-blue-800 mb-2">Compte de démonstration</h3>
               <p className="text-xs text-blue-600">
-                Email: <span className="font-mono">demo@cosmetologie.fr</span>
+                Email: <span className="font-mono">john@example.com</span>
                 <br />
-                Mot de passe: <span className="font-mono">demo123</span>
+                Mot de passe: <span className="font-mono">password123</span>
               </p>
             </div>
           </div>
@@ -213,8 +236,6 @@ export default function Login() {
           </div>
         </div>
       </div>
-
-
     </div>
   );
 }

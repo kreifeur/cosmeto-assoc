@@ -14,10 +14,10 @@ export default function DashboardLayout({ children }) {
   useEffect(() => {
     // Simulation de vérification d'authentification
     const checkAuth = async () => {
-      const token = "localStorage.getItem('authToken');"
+      const token = localStorage.getItem('authToken');
 
       if (!token) {
-        router.push('/login'); //
+        router.push('/login');
         return;
       }
 
