@@ -1,15 +1,11 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import GoogleProvider from 'next-auth/providers/google';
 import User from '../../../../models/User';
 import dbConnect from '../../../../lib/mongodb';
 
+// Simplified auth options without dynamic imports
 const authOptions = {
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    }),
     CredentialsProvider({
       name: 'credentials',
       credentials: {
@@ -17,32 +13,46 @@ const authOptions = {
         password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
-        await dbConnect();
+        try {
+          await dbConnect();
 
-        const user = await User.findOne({ email: credentials.email.toLowerCase() });
-        
-        if (!user) {
-          throw new Error('No user found with this email');
+          if (!credentials?.email || !credentials?.password) {
+            return null;
+          }
+
+          // Find user by email
+          const user = await User.findOne({ 
+            email: credentials.email.toLowerCase().trim() 
+          });
+          
+          if (!user) {
+            throw new Error('No user found with this email');
+          }
+
+          // Check password (make sure your User model has comparePassword method)
+          const isPasswordValid = await user.comparePassword(credentials.password);
+          
+          if (!isPasswordValid) {
+            throw new Error('Invalid password');
+          }
+
+          // Return user object without password
+          return {
+            id: user._id.toString(),
+            email: user.email,
+            name: user.name,
+            role: user.role || 'member',
+          };
+        } catch (error) {
+          console.error('Auth error:', error);
+          return null;
         }
-
-        const isValid = await user.comparePassword(credentials.password);
-        
-        if (!isValid) {
-          throw new Error('Invalid password');
-        }
-
-        return {
-          id: user._id.toString(),
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          avatar: user.avatar,
-        };
       }
     })
   ],
   callbacks: {
     async jwt({ token, user }) {
+      // Add user role to the token
       if (user) {
         token.role = user.role;
         token.id = user.id;
@@ -50,8 +60,11 @@ const authOptions = {
       return token;
     },
     async session({ session, token }) {
-      session.user.id = token.id;
-      session.user.role = token.role;
+      // Add role and id to session
+      if (session.user) {
+        session.user.role = token.role;
+        session.user.id = token.id;
+      }
       return session;
     },
   },
@@ -62,11 +75,12 @@ const authOptions = {
   },
   session: {
     strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60,
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
+  secret: process.env.NEXTAUTH_SECRET,
 };
 
+// Handler for GET and POST
 const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
-export { authOptions };
