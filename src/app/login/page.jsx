@@ -26,8 +26,8 @@ export default function Login() {
         throw new Error('Veuillez remplir tous les champs');
       }
 
-      // Appel à l'API Next.js interne
-      const response = await fetch('/api/auth/signin', {
+      // Appel à l'API backend externe
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -46,12 +46,11 @@ export default function Login() {
 
       if (data.success) {
         // Connexion réussie
-        console.log('Connexion réussie!', data);
+        console.log('Connexion réussie!', data.data.user);
         
-        // Stocker le token d'accès et les informations utilisateur
-        localStorage.setItem("authToken", data.data.accessToken);
-        localStorage.setItem("refreshToken", data.data.refreshToken);
+        localStorage.setItem("authToken", data.data.token);
         localStorage.setItem("user", JSON.stringify(data.data.user));
+        
         
         setSuccess(true);
         
@@ -64,6 +63,7 @@ export default function Login() {
       }
     } catch (err) {
       setError(err.message);
+      console.error('Erreur de connexion:', err);
     } finally {
       setIsLoading(false);
     }
@@ -124,7 +124,7 @@ export default function Login() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                    placeholder="john@example.com"
+                    placeholder="admin@example.com"
                     disabled={isLoading}
                   />
                 </div>
@@ -144,7 +144,7 @@ export default function Login() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                    placeholder="password123"
+                    placeholder="admin123"
                     disabled={isLoading}
                   />
                 </div>
@@ -219,9 +219,9 @@ export default function Login() {
             <div className="mt-6 p-4 bg-blue-50 rounded-md">
               <h3 className="text-sm font-medium text-blue-800 mb-2">Compte de démonstration</h3>
               <p className="text-xs text-blue-600">
-                Email: <span className="font-mono">john@example.com</span>
+                Email: <span className="font-mono">ibrahim@example.com</span>
                 <br />
-                Mot de passe: <span className="font-mono">password123</span>
+                Mot de passe: <span className="font-mono">passe123</span>
               </p>
             </div>
           </div>

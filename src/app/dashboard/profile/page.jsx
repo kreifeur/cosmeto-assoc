@@ -4,9 +4,10 @@
 import { useState } from 'react';
 
 export default function ProfilePage() {
+  const localuser = JSON.parse(localStorage.getItem("user"))
   const [user, setUser] = useState({
     name: "Marie Dupont",
-    email: "marie.dupont@example.com",
+    email: localuser?.email,
     phone: "+33 6 12 34 56 78",
     address: "123 Rue de la Cosmétique, Paris",
     company: "Laboratoires Beauté Naturelle",

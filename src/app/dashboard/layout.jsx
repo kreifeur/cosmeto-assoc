@@ -22,10 +22,11 @@ export default function DashboardLayout({ children }) {
       }
 
       // Simulation de récupération des données utilisateur
+      const localuser = JSON.parse(localStorage.getItem("user"))
       const userData = {
         id: 1,
-        name: "Marie Dupont",
-        email: "marie.dupont@example.com",
+        name: localuser?.email,
+        email: localuser?.email,
         role: "member", // ou "admin"
         membershipType: "individual",
         membershipStatus: "active",

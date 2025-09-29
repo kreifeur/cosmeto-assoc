@@ -40,44 +40,57 @@ export default function Membership() {
       plan: plan
     }));
   };
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  
-  try {
-    // Basic validation
-    if (!formData.acceptTerms) {
-      alert('Veuillez accepter les conditions générales');
-      return;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    try {
+      // Basic validation
+      if (!formData.acceptTerms) {
+        alert('Veuillez accepter les conditions générales');
+        return;
+      }
+
+      // Préparer les données pour l'endpoint /auth/register
+      const registerData = {
+        email: formData.email,
+        password: "passe1234", // Mot de passe par défaut pour l'adhésion
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        phone: formData.phone,
+        professionalStatus: formData.profession || 'professional', // Utiliser la profession comme statut pro
+        domainOfInterest: ["skincare", "research"] // Domaines par défaut pour l'adhésion
+        // Note: Les champs suivants ne sont PAS envoyés car pas dans l'API /auth/register :
+        // company, address, city, postalCode, country, membershipType, plan
+      };
+
+      console.log('Données envoyées à /auth/register:', registerData);
+
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(registerData),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        console.log('Adhésion enregistrée avec succès:', result.data);
+        setIsSubmitted(true);
+        
+        // Stocker l'ID utilisateur si nécessaire
+        // localStorage.setItem('userId', result.data.userId);
+      } else {
+        console.error('Erreur lors de l\'enregistrement:', result.message);
+        alert(`Erreur: ${result.message}`);
+      }
+    } catch (error) {
+      console.error('Erreur réseau:', error);
+      alert('Erreur de connexion au serveur');
     }
-
-    const response = await fetch('http://localhost:5000/api/members/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        ...formData,
-        membershipType: selectedPlan // Use the selected plan
-      }),
-    });
-
-    const result = await response.json();
-
-    if (result.success) {
-      console.log('Adhésion enregistrée avec succès:', result.data);
-      setIsSubmitted(true);
-      
-      // You can also store the membership number in state if needed
-      // setMembershipNumber(result.data.membershipNumber);
-    } else {
-      console.error('Erreur lors de l\'enregistrement:', result.message);
-      alert(`Erreur: ${result.message}`);
-    }
-  } catch (error) {
-    console.error('Erreur réseau:', error);
-    alert('Erreur de connexion au serveur');
-  }
-};
+  };
 
   const nextStep = () => {
     setCurrentStep(prev => prev + 1);
