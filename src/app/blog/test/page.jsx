@@ -1,4 +1,5 @@
 "use client"
+import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 
 const Page = () => {
@@ -10,22 +11,10 @@ const Page = () => {
         const fetchData = async () => {
             try {
                 setLoading(true)
-                // Essayez directement avec mode 'cors'
-                const response = await fetch('https://backend-association-cosm-tologie.vercel.app/api/articles', {
-                    method: 'GET',
-                    mode: 'cors',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                })
-                
-                if (!response.ok) {
-                    throw new Error('Network response was not ok')
-                }
-                
-                const result = await response.json()
-                setData(result)
-                console.log('Fetched data:', result)
+                // Utilisez le proxy local au lieu de l'URL externe directement
+                const response = await axios.get('/api/articles')
+                setData(response.data)
+                console.log('Fetched data:', response.data)
             } catch (err) {
                 setError(err.message)
                 console.error('Error fetching data:', err)
