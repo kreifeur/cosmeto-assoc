@@ -40,13 +40,44 @@ export default function Membership() {
       plan: plan
     }));
   };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  
+  try {
+    // Basic validation
+    if (!formData.acceptTerms) {
+      alert('Veuillez accepter les conditions générales');
+      return;
+    }
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Ici vous ajouterez la logique pour traiter l'adhésion
-    console.log('Adhésion soumise:', formData);
-    setIsSubmitted(true);
-  };
+    const response = await fetch('http://localhost:5000/api/members/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ...formData,
+        membershipType: selectedPlan // Use the selected plan
+      }),
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      console.log('Adhésion enregistrée avec succès:', result.data);
+      setIsSubmitted(true);
+      
+      // You can also store the membership number in state if needed
+      // setMembershipNumber(result.data.membershipNumber);
+    } else {
+      console.error('Erreur lors de l\'enregistrement:', result.message);
+      alert(`Erreur: ${result.message}`);
+    }
+  } catch (error) {
+    console.error('Erreur réseau:', error);
+    alert('Erreur de connexion au serveur');
+  }
+};
 
   const nextStep = () => {
     setCurrentStep(prev => prev + 1);

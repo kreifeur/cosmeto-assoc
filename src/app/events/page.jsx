@@ -34,7 +34,7 @@ export default function Events() {
   const fetchEvents = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/events?${activeFilter !== 'all' ? `type=${activeFilter}` : ''}`);
+      const response = await fetch(`https://assback.vercel.app/api/events?${activeFilter !== 'all' ? `type=${activeFilter}` : ''}`);
       const data = await response.json();
       
       if (data.success) {

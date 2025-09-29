@@ -1,5 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async rewrites() {
+    return [
+      {
+        source: '/api/articles/:path*',
+        destination: 'https://backend-association-cosm-tologie.vercel.app/api/articles/:path*',
+      },
+    ];
+  },
   async headers() {
     return [
       {
@@ -14,4 +22,4 @@ const nextConfig = {
   },
 }
 
-module.exports = nextConfig
+module.exports = nextConfig;

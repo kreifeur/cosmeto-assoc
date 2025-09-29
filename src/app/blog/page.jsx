@@ -19,6 +19,8 @@ import Head from "next/head";
 
 const categories = [
   "Tous",
+  "tendances",
+  "innovation",
   "Maquillage",
   "Soins",
   "Naturel",
@@ -40,7 +42,7 @@ export default function Blog() {
     fetchBlogPosts();
   }, [selectedCategory, searchQuery]);
 
-  // Fetch popular posts
+  // Fetch popular posts (most viewed)
   useEffect(() => {
     fetchPopularPosts();
   }, []);
@@ -48,15 +50,31 @@ export default function Blog() {
   const fetchBlogPosts = async () => {
     try {
       setLoading(true);
-      const params = new URLSearchParams();
-      if (selectedCategory !== 'Tous') params.append('category', selectedCategory);
-      if (searchQuery) params.append('search', searchQuery);
-      
-      const response = await fetch(`/api/blog/posts?${params}`);
+      const response = await fetch('/api/articles');
       const data = await response.json();
       
       if (data.success) {
-        setBlogPosts(data.posts);
+        // Transform API data to match component structure
+        const transformedPosts = data.data.articles.map(article => ({
+          id: article._id,
+          title: article.title,
+          content: article.content,
+          excerpt: article.excerpt,
+          author: article.authorId?.email || "Auteur inconnu",
+          authorId: article.authorId?._id,
+          category: article.tags?.[0] || "Général",
+          tags: article.tags || [],
+          isMemberOnly: article.isMemberOnly,
+          isPublished: article.isPublished,
+          date: new Date(article.publishedAt).toLocaleDateString('fr-FR'),
+          readTime: `${Math.ceil(article.content.length / 1000)} min read`,
+          viewCount: article.views,
+          publishedAt: article.publishedAt,
+          createdAt: article.createdAt,
+          updatedAt: article.updatedAt
+        }));
+        
+        setBlogPosts(transformedPosts);
       }
     } catch (error) {
       console.error('Error fetching blog posts:', error);
@@ -67,29 +85,81 @@ export default function Blog() {
 
   const fetchPopularPosts = async () => {
     try {
-      const response = await fetch('/api/blog/posts?featured=true&limit=3');
+      const response = await fetch('/api/articles');
       const data = await response.json();
       
       if (data.success) {
-        setPopularPosts(data.posts);
+        // Get most viewed posts
+        const popular = data.data.articles
+          .sort((a, b) => b.views - a.views)
+          .slice(0, 3)
+          .map(article => ({
+            id: article._id,
+            title: article.title,
+            excerpt: article.excerpt,
+            author: article.authorId?.email || "Auteur inconnu",
+            category: article.tags?.[0] || "Général",
+            date: new Date(article.publishedAt).toLocaleDateString('fr-FR'),
+            readTime: `${Math.ceil(article.content.length / 1000)} min read`,
+            viewCount: article.views,
+            content: article.content
+          }));
+        
+        setPopularPosts(popular);
       }
     } catch (error) {
       console.error('Error fetching popular posts:', error);
     }
   };
 
-  const fetchBlogPost = async (slug) => {
+  const fetchBlogPost = async (postId) => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/blog/posts/${slug}`);
+      const baseUrl = "https://backend-association-cosm-tologie.vercel.app/api";
+      const response = await fetch(`${baseUrl}/articles/${postId}`);
       const data = await response.json();
       
       if (data.success) {
-        setSelectedPost(data.post);
-        setRelatedPosts(data.relatedPosts || []);
+        const article = data.data.article || data.data;
+        const transformedPost = {
+          id: article._id,
+          title: article.title,
+          content: article.content,
+          excerpt: article.excerpt,
+          author: article.authorId?.email || "Auteur inconnu",
+          authorId: article.authorId?._id,
+          category: article.tags?.[0] || "Général",
+          tags: article.tags || [],
+          isMemberOnly: article.isMemberOnly,
+          isPublished: article.isPublished,
+          date: new Date(article.publishedAt).toLocaleDateString('fr-FR'),
+          readTime: `${Math.ceil(article.content.length / 1000)} min read`,
+          viewCount: article.views,
+          publishedAt: article.publishedAt
+        };
+        
+        setSelectedPost(transformedPost);
+        
+        // Find related posts based on tags
+        const related = blogPosts
+          .filter(post => 
+            post.id !== article._id && 
+            post.tags.some(tag => article.tags.includes(tag))
+          )
+          .slice(0, 3);
+        setRelatedPosts(related);
       }
     } catch (error) {
       console.error('Error fetching blog post:', error);
+      // Fallback to client-side search if API endpoint doesn't exist
+      const post = blogPosts.find(p => p.id === postId);
+      if (post) {
+        setSelectedPost(post);
+        const related = blogPosts
+          .filter(p => p.id !== postId && p.category === post.category)
+          .slice(0, 3);
+        setRelatedPosts(related);
+      }
     } finally {
       setLoading(false);
     }
@@ -97,19 +167,31 @@ export default function Blog() {
 
   const handlePostClick = (post) => {
     setSelectedPost(post);
-    // Fetch full post content if needed
-    if (post.slug) {
-      fetchBlogPost(post.slug);
-    }
+    // Increment view count if needed
+    // You might want to call an API to increment views here
   };
 
   const filteredPosts = blogPosts.filter((post) => {
-    const matchesCategory = selectedCategory === "Tous" || post.category === selectedCategory;
+    const matchesCategory = selectedCategory === "Tous" || 
+      post.tags.includes(selectedCategory) || 
+      post.category === selectedCategory;
+    
     const matchesSearch = 
       post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
+      post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      post.content.toLowerCase().includes(searchQuery.toLowerCase());
+    
     return matchesCategory && matchesSearch;
   });
+
+  // Format date for display
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  };
 
   if (selectedPost) {
     return (
@@ -128,7 +210,7 @@ export default function Blog() {
             <div className="w-full py-4">
               <button
                 onClick={() => setSelectedPost(null)}
-                className="flex items-center gap-2 text-blue-800 font-medium"
+                className="flex items-center gap-2 text-blue-800 font-medium hover:text-blue-600 transition-colors"
               >
                 <FaArrowLeft /> Retour au blog
               </button>
@@ -142,24 +224,30 @@ export default function Blog() {
               </div>
             ) : (
               <article className="w-full max-w-4xl mx-auto py-8">
-                <div className="mb-6">
-                  <span className="px-3 py-1 bg-blue-800 text-white rounded-full text-sm">
-                    {selectedPost.category}
-                  </span>
+                {/* Tags */}
+                <div className="mb-6 flex flex-wrap gap-2">
+                  {selectedPost.tags.map((tag, index) => (
+                    <span 
+                      key={index}
+                      className="px-3 py-1 bg-blue-800 text-white rounded-full text-sm"
+                    >
+                      {tag}
+                    </span>
+                  ))}
                 </div>
 
                 <h1 className="text-3xl md:text-4xl font-bold text-blue-800 mb-4">
                   {selectedPost.title}
                 </h1>
 
-                <div className="flex items-center gap-4 text-gray-600 mb-6">
+                <div className="flex flex-wrap items-center gap-4 text-gray-600 mb-6">
                   <div className="flex items-center gap-1">
                     <FaUser className="text-sm" />
                     <span>{selectedPost.author}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <FaCalendarAlt className="text-sm" />
-                    <span>{selectedPost.date}</span>
+                    <span>{formatDate(selectedPost.publishedAt)}</span>
                   </div>
                   <div>
                     <span>{selectedPost.readTime}</span>
@@ -173,10 +261,11 @@ export default function Blog() {
                   <span className="text-gray-500">Image de l'article</span>
                 </div>
 
-                <div
-                  className="prose max-w-none text-gray-700"
-                  dangerouslySetInnerHTML={{ __html: selectedPost.content }}
-                ></div>
+                <div className="prose max-w-none text-gray-700 leading-relaxed">
+                  {selectedPost.content.split('\n').map((paragraph, index) => (
+                    <p key={index} className="mb-4">{paragraph}</p>
+                  ))}
+                </div>
 
                 {/* Related Posts */}
                 {relatedPosts.length > 0 && (
@@ -218,7 +307,9 @@ export default function Blog() {
                   </h3>
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                      <span className="text-blue-800 font-semibold">{selectedPost.author.charAt(0)}</span>
+                      <span className="text-blue-800 font-semibold">
+                        {selectedPost.author.charAt(0)}
+                      </span>
                     </div>
                     <div>
                       <h4 className="font-semibold text-blue-800">{selectedPost.author}</h4>
@@ -309,7 +400,7 @@ export default function Blog() {
                       onClick={() => handlePostClick(post)}
                     >
                       <div className="bg-gray-200 aspect-video flex items-center justify-center">
-                        <span className="text-gray-500">Image {post.id}</span>
+                        <span className="text-gray-500">Image</span>
                       </div>
                       <div className="p-6">
                         <div className="flex justify-between items-center mb-3">
@@ -320,14 +411,16 @@ export default function Blog() {
                             {post.readTime}
                           </span>
                         </div>
-                        <h3 className="font-semibold text-xl text-blue-800 mb-2">
+                        <h3 className="font-semibold text-xl text-blue-800 mb-2 line-clamp-2">
                           {post.title}
                         </h3>
-                        <p className="text-gray-600 mb-4">{post.excerpt}</p>
+                        <p className="text-gray-600 mb-4 line-clamp-3">{post.excerpt}</p>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                              <span className="text-blue-800 text-sm font-semibold">{post.author.charAt(0)}</span>
+                              <span className="text-blue-800 text-sm font-semibold">
+                                {post.author.charAt(0)}
+                              </span>
                             </div>
                             <span className="text-sm text-gray-600">
                               {post.author}
@@ -364,13 +457,13 @@ export default function Blog() {
                   onClick={() => handlePostClick(post)}
                 >
                   <div className="bg-gray-200 aspect-video flex items-center justify-center">
-                    <span className="text-gray-500">Image {post.id}</span>
+                    <span className="text-gray-500">Image</span>
                   </div>
                   <div className="p-4">
                     <span className="px-2 py-1 bg-blue-800 text-white rounded-full text-xs">
                       {post.category}
                     </span>
-                    <h3 className="font-semibold text-lg text-blue-800 mt-2 mb-1">
+                    <h3 className="font-semibold text-lg text-blue-800 mt-2 mb-1 line-clamp-2">
                       {post.title}
                     </h3>
                     <div className="flex items-center justify-between text-xs text-gray-500">
@@ -382,8 +475,6 @@ export default function Blog() {
               ))}
             </div>
           </section>
-
-          {/* Rest of your component remains the same... */}
         </div>
       </main>
 
