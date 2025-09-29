@@ -3,8 +3,8 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: '/api/articles/:path*',
-        destination: 'https://backend-association-cosm-tologie.vercel.app/api/articles/:path*',
+        source: '/api/:path*',
+        destination: 'https://backend-association-cosm-tologie.vercel.app/api/:path*',
       },
     ];
   },

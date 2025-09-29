@@ -12,7 +12,7 @@ const Page = () => {
             try {
                 setLoading(true)
                 // Utilisez le proxy local au lieu de l'URL externe directement
-                const response = await axios.get('/api/articles')
+                const response = await axios.get('/api/events')
                 setData(response.data)
                 console.log('Fetched data:', response.data)
             } catch (err) {

@@ -26,22 +26,27 @@ export default function Events() {
     { key: 'visit', label: 'Visites' }
   ];
 
-  // Fetch events from API
+  // Fetch events from API - maintenant sans filtre dans l'URL
   useEffect(() => {
     fetchEvents();
-  }, [activeFilter]);
+  }, []); // Supprimé activeFilter des dépendances
 
   const fetchEvents = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`https://assback.vercel.app/api/events?${activeFilter !== 'all' ? `type=${activeFilter}` : ''}`);
+      const response = await fetch('/api/events');
       const data = await response.json();
       
-      if (data.success) {
-        setEvents(data.events);
+      console.log('API Response:', data);
+      
+      if (data.success && data.data) {
+        setEvents(data.data.events || []);
+      } else {
+        setEvents([]);
       }
     } catch (error) {
       console.error('Error fetching events:', error);
+      setEvents([]);
     } finally {
       setLoading(false);
     }
@@ -51,7 +56,7 @@ export default function Events() {
   const handleEventRegistration = async (formData) => {
     try {
       setRegistrationLoading(true);
-      const response = await fetch(`/api/events/${selectedEvent.id}/register`, {
+      const response = await fetch(`https://assback.vercel.app/api/events/${selectedEvent.id}/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -63,7 +68,6 @@ export default function Events() {
 
       if (data.success) {
         setRegistrationSuccess(true);
-        // Refresh events to update attendee count
         fetchEvents();
       } else {
         alert('Erreur: ' + data.message);
@@ -75,12 +79,30 @@ export default function Events() {
     }
   };
 
-  // Filtrer les événements selon le filtre actif (client-side fallback)
-  const filteredEvents = activeFilter === 'all' 
-    ? events 
-    : events.filter(event => event.type === activeFilter || event.status === activeFilter);
+  // Filtrer les événements côté frontend
+  const filteredEvents = events.filter(event => {
+    const eventDate = new Date(event.date);
+    const today = new Date();
+    
+    switch (activeFilter) {
+      case 'all':
+        return true;
+      case 'upcoming':
+        return eventDate > today;
+      case 'past':
+        return eventDate < today;
+      case 'congress':
+      case 'workshop':
+      case 'training':
+      case 'exhibition':
+      case 'networking':
+      case 'visit':
+        return event.type === activeFilter;
+      default:
+        return true;
+    }
+  });
 
-  // Rest of your component remains the same until the form submission...
   const openRegistrationModal = (event) => {
     setSelectedEvent(event);
     setShowRegistrationModal(true);
@@ -88,11 +110,11 @@ export default function Events() {
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return 'Date à confirmer';
     const options = { day: 'numeric', month: 'long', year: 'numeric' };
     return new Date(dateString).toLocaleDateString('fr-FR', options);
   };
 
-  // Update the form submission in your modal
   const handleRegistrationSubmit = async (e) => {
     e.preventDefault();
     
@@ -105,6 +127,11 @@ export default function Events() {
     };
 
     await handleEventRegistration(formData);
+  };
+
+  // Générer une clé unique pour chaque événement
+  const getEventKey = (event, index) => {
+    return event.id ? `event-${event.id}` : `event-${index}-${Date.now()}`;
   };
 
   return (
@@ -129,7 +156,7 @@ export default function Events() {
           <div className="flex flex-wrap justify-center gap-3 mb-12">
             {filters.map(filter => (
               <button
-                key={filter.key}
+                key={`filter-${filter.key}`} // Clé unique pour chaque filtre
                 onClick={() => setActiveFilter(filter.key)}
                 className={`px-4 py-2 rounded-full transition-colors ${
                   activeFilter === filter.key
@@ -150,14 +177,38 @@ export default function Events() {
             </div>
           )}
 
+          {/* Aucun événement */}
+          {!loading && filteredEvents.length === 0 && (
+            <div className="text-center py-12">
+              <div className="text-gray-500 text-6xl mb-4">📅</div>
+              <h3 className="text-xl font-semibold text-gray-700 mb-2">Aucun événement trouvé</h3>
+              <p className="text-gray-600">
+                {activeFilter === 'all' 
+                  ? "Aucun événement n'est programmé pour le moment." 
+                  : `Aucun événement trouvé pour le filtre "${filters.find(f => f.key === activeFilter)?.label}".`}
+              </p>
+            </div>
+          )}
+
           {/* Liste des événements */}
-          {!loading && (
+          {!loading && filteredEvents.length > 0 && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
-              {filteredEvents.map(event => (
-                <div key={event.id} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-                  {/* Event card content remains the same */}
+              {filteredEvents.map((event, index) => (
+                <div 
+                  key={getEventKey(event, index)} // Clé unique pour chaque événement
+                  className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow"
+                >
+                  {/* Event image */}
                   <div className="h-48 bg-gray-200 flex items-center justify-center">
-                    <span className="text-gray-500">Image {event.title}</span>
+                    {event.image ? (
+                      <img 
+                        src={event.image} 
+                        alt={event.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-gray-500">Image {event.title}</span>
+                    )}
                   </div>
                   
                   <div className="p-6">
@@ -170,6 +221,7 @@ export default function Events() {
                           {event.type === 'exhibition' && 'Salon'}
                           {event.type === 'networking' && 'Networking'}
                           {event.type === 'visit' && 'Visite'}
+                          {!event.type && 'Événement'}
                         </span>
                         <h3 className="text-xl font-semibold text-blue-800 mb-1">{event.title}</h3>
                       </div>
@@ -186,7 +238,7 @@ export default function Events() {
                     <div className="flex justify-between items-center mb-4">
                       <div className="flex items-center text-sm text-gray-600">
                         <span className="mr-2">📍</span>
-                        {event.location}
+                        {event.location || 'Lieu à confirmer'}
                       </div>
                       <div className="text-right">
                         {event.price === 0 ? (
@@ -204,12 +256,12 @@ export default function Events() {
                       <div className="mb-4">
                         <div className="flex justify-between text-sm text-gray-600 mb-1">
                           <span>Places disponibles:</span>
-                          <span>{event.maxAttendees - event.currentAttendees} / {event.maxAttendees}</span>
+                          <span>{event.maxAttendees - (event.currentAttendees || 0)} / {event.maxAttendees}</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div 
                             className="bg-blue-600 h-2 rounded-full" 
-                            style={{ width: `${(event.currentAttendees / event.maxAttendees) * 100}%` }}
+                            style={{ width: `${((event.currentAttendees || 0) / event.maxAttendees) * 100}%` }}
                           ></div>
                         </div>
                       </div>
@@ -218,11 +270,11 @@ export default function Events() {
                     <div className="flex justify-between items-center">
                       <button 
                         onClick={() => openRegistrationModal(event)}
-                        disabled={event.status === 'past' || (event.maxAttendees && event.currentAttendees >= event.maxAttendees)}
+                        disabled={event.status === 'past' || (event.maxAttendees && (event.currentAttendees || 0) >= event.maxAttendees)}
                         className="px-4 py-2 bg-blue-800 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
                       >
                         {event.status === 'past' ? "Voir le replay" : 
-                         event.maxAttendees && event.currentAttendees >= event.maxAttendees ? "Complet" : "S'inscrire"}
+                         event.maxAttendees && (event.currentAttendees || 0) >= event.maxAttendees ? "Complet" : "S'inscrire"}
                       </button>
                       <button className="px-4 py-2 border border-blue-800 text-blue-800 rounded-md hover:bg-blue-50 transition-colors text-sm font-medium">
                         Détails
@@ -260,18 +312,18 @@ export default function Events() {
                     <div className="mb-6">
                       <h4 className="font-medium mb-2">Date et lieu :</h4>
                       <p className="text-gray-700">{formatDate(selectedEvent.date)} {selectedEvent.endDate && `au ${formatDate(selectedEvent.endDate)}`}</p>
-                      <p className="text-gray-700">{selectedEvent.location}</p>
+                      <p className="text-gray-700">{selectedEvent.location || 'Lieu à confirmer'}</p>
                     </div>
                     
                     <div className="mb-6">
                       <h4 className="font-medium mb-2">Tarifs :</h4>
                       <div className="flex justify-between items-center mb-2">
                         <span>Non-membre :</span>
-                        <span className="font-semibold">{selectedEvent.price}€</span>
+                        <span className="font-semibold">{selectedEvent.price || 0}€</span>
                       </div>
                       <div className="flex justify-between items-center text-blue-800">
                         <span>Membre de l'association :</span>
-                        <span className="font-semibold">{selectedEvent.memberPrice}€</span>
+                        <span className="font-semibold">{selectedEvent.memberPrice || 0}€</span>
                       </div>
                       <a href="/membership" className="text-sm text-blue-600 hover:underline mt-2 inline-block">
                         Devenir membre pour bénéficier du tarif réduit
@@ -281,22 +333,43 @@ export default function Events() {
                     <form onSubmit={handleRegistrationSubmit} className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Nom complet *</label>
-                        <input name="name" type="text" className="w-full px-3 py-2 border border-gray-300 rounded-md" required />
+                        <input 
+                          key={`name-${selectedEvent.id}`}
+                          name="name" 
+                          type="text" 
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md" 
+                          required 
+                        />
                       </div>
                       
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-                        <input name="email" type="email" className="w-full px-3 py-2 border border-gray-300 rounded-md" required />
+                        <input 
+                          key={`email-${selectedEvent.id}`}
+                          name="email" 
+                          type="email" 
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md" 
+                          required 
+                        />
                       </div>
                       
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Entreprise</label>
-                        <input name="company" type="text" className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+                        <input 
+                          key={`company-${selectedEvent.id}`}
+                          name="company" 
+                          type="text" 
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md" 
+                        />
                       </div>
                       
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Êtes-vous membre ?</label>
-                        <select name="membership" className="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        <select 
+                          key={`membership-${selectedEvent.id}`}
+                          name="membership" 
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        >
                           <option value="no">Non, pas encore membre</option>
                           <option value="yes">Oui, je suis membre</option>
                         </select>
@@ -324,8 +397,6 @@ export default function Events() {
               </div>
             </div>
           )}
-
-          {/* Rest of your component remains the same... */}
         </div>
       </main>
 
