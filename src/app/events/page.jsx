@@ -241,12 +241,12 @@ export default function Events() {
                         {event.location || 'Lieu à confirmer'}
                       </div>
                       <div className="text-right">
-                        {event.price === 0 ? (
+                        {event.nonMemberPrice === 0 ? (
                           <span className="text-green-600 font-semibold">Gratuit</span>
                         ) : (
                           <>
-                            <div className="text-gray-500 line-through text-sm">{event.price}€</div>
-                            <div className="text-blue-800 font-semibold">{event.memberPrice}€ membres</div>
+                            <div className="text-gray-500 line-through text-sm">{event.nonMemberPrice} €</div>
+                            <div className="text-blue-800 font-semibold">{event.memberPrice} € membres</div>
                           </>
                         )}
                       </div>
