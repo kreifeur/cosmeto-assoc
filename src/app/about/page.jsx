@@ -89,8 +89,9 @@ export default function About() {
               À propos de la Fédération
             </h1>
             <p className="text-xl max-w-3xl mx-auto">
-              Découvrez l'histoire, la mission et les valeurs de l'Association
-              de Cosmétologie, acteur majeur du secteur depuis plus de 10 ans.
+              Découvrez l’histoire, la mission et les valeurs de la Fédération
+              Algérienne des Pharmaciens, acteur majeur du secteur depuis sa
+              création.
             </p>
           </div>
         </section>
@@ -135,45 +136,53 @@ export default function About() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
               <div>
                 <h3 className="text-2xl font-semibold mb-6 text-yellow-300">
-                  Nos valeurs
+                  Nos Missions
                 </h3>
                 <div className="space-y-6">
                   <div>
-                    <h4 className="text-lg font-semibold mb-2">Engagement</h4>
+                    <h4 className="text-lg font-semibold mb-2">
+                      Représentation{" "}
+                    </h4>
                     <p>
-                      Défendre les intérêts de la profession pharmaceutique et
-                      contribuer à l’amélioration continue de la santé en
-                      Algérie.
+                      Porter la voix des pharmaciens auprès des institutions
+                      nationales et internationales.
                     </p>
                   </div>
                   <div>
-                    <h4 className="text-lg font-semibold mb-2">Éthique</h4>
+                    <h4 className="text-lg font-semibold mb-2">
+                      Développement professionnel
+                    </h4>
                     <p>
-                      Promouvoir une pratique professionnelle responsable,
-                      respectueuse de la réglementation et des patients.
+                      Organiser des formations, congrès et ateliers pour
+                      renforcer les compétences des pharmaciens.
                     </p>
                   </div>
                   <div>
-                    <h4 className="text-lg font-semibold mb-2">Solidarité</h4>
+                    <h4 className="text-lg font-semibold mb-2">
+                      Santé publique
+                    </h4>
                     <p>
-                      Fédérer les pharmaciens autour d’une vision commune, dans
-                      un esprit de collaboration et de partage.
+                      Participer aux campagnes de prévention et sensibilisation
+                      pour améliorer la santé des citoyens.
                     </p>
                   </div>
                   <div>
-                    <h4 className="text-lg font-semibold mb-2">Innovation</h4>
+                    <h4 className="text-lg font-semibold mb-2">
+                      Encadrement et réglementation
+                    </h4>
                     <p>
-                      Encourager la recherche, la digitalisation et l’adoption
-                      de solutions modernes pour répondre aux besoins actuels et
-                      futurs.
+                      Veiller au respect des textes législatifs et proposer des
+                      réformes adaptées aux évolutions du secteur.
                     </p>
                   </div>
 
                   <div>
-                    <h4 className="text-lg font-semibold mb-2">Proximité</h4>
+                    <h4 className="text-lg font-semibold mb-2">
+                      Promotion de la recherche et de l’industrie
+                    </h4>
                     <p>
-                      Être à l’écoute des pharmaciens et des citoyens pour mieux
-                      répondre à leurs attentes.
+                      Valoriser la recherche pharmaceutique nationale et
+                      encourager l’innovation en industrie.
                     </p>
                   </div>
                 </div>
@@ -224,7 +233,6 @@ export default function About() {
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
         </section>
@@ -250,42 +258,103 @@ export default function About() {
         </section>
 
         {/* Équipe */}
-        <section className="py-16 px-6 bg-blue-50">
-          <div className="container mx-auto">
-            <h2 className="text-3xl font-bold text-center text-blue-800 mb-4">
-              Notre équipe
-            </h2>
-            <p className="text-lg text-center text-gray-700 max-w-3xl mx-auto mb-12">
-              Une équipe de professionnels passionnés et expérimentés qui
-              œuvrent au quotidien pour faire vivre l'association et servir ses
-              membres.
-            </p>
+<section className="py-16 px-6 bg-blue-50">
+  <div className="container mx-auto">
+    <h2 className="text-3xl font-bold text-center text-blue-800 mb-4">
+      Membres du bureau
+    </h2>
+    <p className="text-lg text-center text-gray-700 max-w-3xl mx-auto mb-12">
+      Voici les membres qui composent le bureau de la Fédération Algérienne des Pharmaciens.
+    </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {teamMembers.map((member) => (
-                <div
-                  key={member.id}
-                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-                >
-                  <div className="h-64 bg-gray-200 flex items-center justify-center">
-                    <span className="text-gray-500">
-                      Photo de {member.name}
-                    </span>
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-xl font-semibold text-blue-800 mb-1">
-                      {member.name}
-                    </h3>
-                    <p className="text-yellow-600 font-medium mb-4">
-                      {member.role}
-                    </p>
-                    <p className="text-gray-700">{member.bio}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {/* Président */}
+      <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+        <div className="h-48 bg-gray-200 flex items-center justify-center">
+          <span className="text-gray-500">Photo de Boudis Abdelhakim</span>
+        </div>
+        <div className="p-6">
+          <h3 className="text-xl font-semibold text-blue-800 mb-1">Boudis Abdelhakim</h3>
+          <p className="text-yellow-600 font-medium mb-4">Président</p>
+          <p className="text-gray-700">Engagé dans la défense de la profession, il œuvre à renforcer la place du pharmacien dans la société algérienne.</p>
+        </div>
+      </div>
+
+      {/* Vice président 1 */}
+      <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+        <div className="h-48 bg-gray-200 flex items-center justify-center">
+          <span className="text-gray-500">Photo de Selka Mohamed Adil</span>
+        </div>
+        <div className="p-6">
+          <h3 className="text-xl font-semibold text-blue-800 mb-1">Selka Mohamed Adil</h3>
+          <p className="text-yellow-600 font-medium mb-4">Vice-président 1</p>
+          <p className="text-gray-700">Passionné par l’innovation pharmaceutique, il contribue au développement de solutions modernes pour la santé.</p>
+        </div>
+      </div>
+
+      {/* Vice président 2 */}
+      <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+        <div className="h-48 bg-gray-200 flex items-center justify-center">
+          <span className="text-gray-500">Photo de Mezaour Yacine</span>
+        </div>
+        <div className="p-6">
+          <h3 className="text-xl font-semibold text-blue-800 mb-1">Mezaour Yacine</h3>
+          <p className="text-yellow-600 font-medium mb-4">Vice-président 2</p>
+          <p className="text-gray-700">Spécialiste en santé publique, il met son expertise au service de la prévention et de la sensibilisation.</p>
+        </div>
+      </div>
+
+      {/* SG */}
+      <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+        <div className="h-48 bg-gray-200 flex items-center justify-center">
+          <span className="text-gray-500">Photo de Achouri Mohamed Yacine</span>
+        </div>
+        <div className="p-6">
+          <h3 className="text-xl font-semibold text-blue-800 mb-1">Achouri Mohamed Yacine</h3>
+          <p className="text-yellow-600 font-medium mb-4">Secrétaire Général</p>
+          <p className="text-gray-700">Organisé et rigoureux, il assure la coordination et la bonne gestion administrative de la Fédération.</p>
+        </div>
+      </div>
+
+      {/* Trésorier */}
+      <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+        <div className="h-48 bg-gray-200 flex items-center justify-center">
+          <span className="text-gray-500">Photo de Zebbiche Younes</span>
+        </div>
+        <div className="p-6">
+          <h3 className="text-xl font-semibold text-blue-800 mb-1">Zebbiche Younes</h3>
+          <p className="text-yellow-600 font-medium mb-4">Trésorier</p>
+          <p className="text-gray-700">Garant de la transparence financière, il veille à la bonne gestion des ressources de la Fédération.</p>
+        </div>
+      </div>
+
+      {/* SG adjoint */}
+      <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+        <div className="h-48 bg-gray-200 flex items-center justify-center">
+          <span className="text-gray-500">Photo de Khouader Nassima</span>
+        </div>
+        <div className="p-6">
+          <h3 className="text-xl font-semibold text-blue-800 mb-1">Khouader Nassima</h3>
+          <p className="text-yellow-600 font-medium mb-4">Secrétaire Général Adjoint</p>
+          <p className="text-gray-700">Dynamique et impliquée, elle contribue activement à l’organisation des événements et projets de la Fédération.</p>
+        </div>
+      </div>
+
+      {/* Trésorier Adjoint */}
+      <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+        <div className="h-48 bg-gray-200 flex items-center justify-center">
+          <span className="text-gray-500">Photo de Lakhlef Oussama</span>
+        </div>
+        <div className="p-6">
+          <h3 className="text-xl font-semibold text-blue-800 mb-1">Lakhlef Oussama</h3>
+          <p className="text-yellow-600 font-medium mb-4">Trésorier Adjoint</p>
+          <p className="text-gray-700">Jeune et motivé, il apporte son soutien à la gestion financière et au suivi des projets budgétaires.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 
         {/* Partenaires */}
         <section className="py-16 px-6 bg-white">

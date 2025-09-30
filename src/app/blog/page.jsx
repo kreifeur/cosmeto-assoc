@@ -344,7 +344,7 @@ export default function Blog() {
         <div className="container mx-auto px-4">
           {/* Blog Header */}
           <section className="w-full mb-8 text-center">
-            <h1 className="text-4xl font-bold text-blue-800 mb-4">Blog Beauté</h1>
+            <h1 className="text-4xl font-bold text-blue-800 mb-4">Blog</h1>
             <p className="text-lg text-gray-700 max-w-2xl mx-auto">
               Découvrez les dernières tendances, conseils d'experts et actualités
               du monde de la cosmétique.
