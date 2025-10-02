@@ -314,8 +314,7 @@ export default function Blog() {
                     <div>
                       <h4 className="font-semibold text-blue-800">{selectedPost.author}</h4>
                       <p className="text-gray-600">
-                        Expert en cosmétologie et passionné par les innovations
-                        beauté.
+                        Passionné par l’innovation pharmaceutique, il contribue au développement de solutions modernes pour la santé.
                       </p>
                     </div>
                   </div>
