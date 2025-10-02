@@ -11,6 +11,8 @@ export default function Membership() {
     firstName: '',
     lastName: '',
     email: '',
+    password: '',
+    confirmPassword: '',
     phone: '',
     profession: '',
     company: '',
@@ -24,6 +26,8 @@ export default function Membership() {
   });
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -31,6 +35,11 @@ export default function Membership() {
       ...prevState,
       [name]: type === 'checkbox' ? checked : value
     }));
+    
+    // Effacer l'erreur quand l'utilisateur commence à taper
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
   };
 
   const handlePlanChange = (plan) => {
@@ -41,11 +50,85 @@ export default function Membership() {
     }));
   };
 
+  const validateStep1 = () => {
+    const newErrors = {};
+    
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = 'Le prénom est requis';
+    }
+    
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = 'Le nom est requis';
+    }
+    
+    if (!formData.email.trim()) {
+      newErrors.email = 'L\'email est requis';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'L\'email n\'est pas valide';
+    }
+    
+    if (!formData.password) {
+      newErrors.password = 'Le mot de passe est requis';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Le mot de passe doit contenir au moins 6 caractères';
+    }
+    
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Veuillez confirmer votre mot de passe';
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Les mots de passe ne correspondent pas';
+    }
+    
+    if (!formData.profession.trim()) {
+      newErrors.profession = 'La profession est requise';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateStep2 = () => {
+    const newErrors = {};
+    
+    if (!formData.address.trim()) {
+      newErrors.address = 'L\'adresse est requise';
+    }
+    
+    if (!formData.postalCode.trim()) {
+      newErrors.postalCode = 'Le code postal est requis';
+    }
+    
+    if (!formData.city.trim()) {
+      newErrors.city = 'La ville est requise';
+    }
+    
+    if (!formData.acceptTerms) {
+      newErrors.acceptTerms = 'Vous devez accepter les conditions générales';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const nextStep = () => {
+    if (currentStep === 1 && !validateStep1()) {
+      return;
+    }
+    if (currentStep === 2 && !validateStep2()) {
+      return;
+    }
+    setCurrentStep(prev => prev + 1);
+  };
+
+  const prevStep = () => {
+    setCurrentStep(prev => prev - 1);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     try {
-      // Basic validation
+      // Validation finale
       if (!formData.acceptTerms) {
         alert('Veuillez accepter les conditions générales');
         return;
@@ -54,14 +137,12 @@ export default function Membership() {
       // Préparer les données pour l'endpoint /auth/register
       const registerData = {
         email: formData.email,
-        password: "passe1234", // Mot de passe par défaut pour l'adhésion
+        password: formData.password,
         firstName: formData.firstName,
         lastName: formData.lastName,
         phone: formData.phone,
-        professionalStatus: formData.profession || 'professional', // Utiliser la profession comme statut pro
-        domainOfInterest: ["skincare", "research"] // Domaines par défaut pour l'adhésion
-        // Note: Les champs suivants ne sont PAS envoyés car pas dans l'API /auth/register :
-        // company, address, city, postalCode, country, membershipType, plan
+        professionalStatus: formData.profession.toLowerCase() || 'professional',
+        domainOfInterest: ["skincare", "research"]
       };
 
       console.log('Données envoyées à /auth/register:', registerData);
@@ -80,8 +161,11 @@ export default function Membership() {
         console.log('Adhésion enregistrée avec succès:', result.data);
         setIsSubmitted(true);
         
-        // Stocker l'ID utilisateur si nécessaire
-        // localStorage.setItem('userId', result.data.userId);
+        // Stocker les informations utilisateur si nécessaire
+        if (result.data.user) {
+          localStorage.setItem('authToken', result.data.token);
+          localStorage.setItem('userData', JSON.stringify(result.data.user));
+        }
       } else {
         console.error('Erreur lors de l\'enregistrement:', result.message);
         alert(`Erreur: ${result.message}`);
@@ -90,14 +174,6 @@ export default function Membership() {
       console.error('Erreur réseau:', error);
       alert('Erreur de connexion au serveur');
     }
-  };
-
-  const nextStep = () => {
-    setCurrentStep(prev => prev + 1);
-  };
-
-  const prevStep = () => {
-    setCurrentStep(prev => prev - 1);
   };
 
   const membershipPlans = [
@@ -208,14 +284,14 @@ export default function Membership() {
                     <div className={`h-10 w-10 rounded-full flex items-center justify-center ${currentStep >= 1 ? 'bg-blue-800 text-white' : 'bg-gray-200'}`}>
                       1
                     </div>
-                    <span className="mt-2 text-sm font-medium">Choix de la formule</span>
+                    <span className="mt-2 text-sm font-medium">Informations personnelles</span>
                   </div>
                   <div className={`h-1 flex-1 mx-2 ${currentStep >= 2 ? 'bg-blue-800' : 'bg-gray-200'}`}></div>
                   <div className={`flex flex-col items-center ${currentStep >= 2 ? 'text-blue-800' : 'text-gray-400'}`}>
                     <div className={`h-10 w-10 rounded-full flex items-center justify-center ${currentStep >= 2 ? 'bg-blue-800 text-white' : 'bg-gray-200'}`}>
                       2
                     </div>
-                    <span className="mt-2 text-sm font-medium">Informations personnelles</span>
+                    <span className="mt-2 text-sm font-medium">Adresse et conditions</span>
                   </div>
                   <div className={`h-1 flex-1 mx-2 ${currentStep >= 3 ? 'bg-blue-800' : 'bg-gray-200'}`}></div>
                   <div className={`flex flex-col items-center ${currentStep >= 3 ? 'text-blue-800' : 'text-gray-400'}`}>
@@ -227,60 +303,8 @@ export default function Membership() {
                 </div>
               </div>
 
-              {/* Étape 1: Choix de la formule */}
+              {/* Étape 1: Informations personnelles */}
               {currentStep === 1 && (
-                <div className="max-w-5xl mx-auto">
-                  <h2 className="text-2xl font-semibold text-center text-blue-800 mb-8">Choisissez votre formule d'adhésion</h2>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {membershipPlans.map(plan => (
-                      <div 
-                        key={plan.id} 
-                        className={`bg-white rounded-lg shadow-md p-6 border-2 ${selectedPlan === plan.id ? 'border-blue-800' : 'border-white'} ${plan.recommended ? 'ring-2 ring-yellow-500' : ''} transition-all hover:shadow-lg`}
-                        onClick={() => handlePlanChange(plan.id)}
-                      >
-                        {plan.recommended && (
-                          <div className="bg-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full inline-block mb-4">
-                            Recommandé
-                          </div>
-                        )}
-                        <h3 className="text-xl font-semibold text-blue-800 mb-2">{plan.title}</h3>
-                        <p className="text-gray-600 mb-4">{plan.description}</p>
-                        <div className="mb-6">
-                          <span className="text-3xl font-bold text-blue-800">{plan.price}€</span>
-                          <span className="text-gray-600">/{plan.period}</span>
-                        </div>
-                        <ul className="space-y-3 mb-6">
-                          {plan.features.map((feature, index) => (
-                            <li key={index} className="flex items-start">
-                              <span className="text-green-500 mr-2">✓</span>
-                              <span className="text-gray-700">{feature}</span>
-                            </li>
-                          ))}
-                        </ul>
-                        <button 
-                          className={`w-full py-2 rounded-md font-medium ${selectedPlan === plan.id ? 'bg-blue-800 text-white' : 'bg-gray-100 text-gray-800'} transition-colors`}
-                          onClick={() => handlePlanChange(plan.id)}
-                        >
-                          {selectedPlan === plan.id ? 'Sélectionné' : 'Choisir cette formule'}
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <div className="text-center mt-10">
-                    <button 
-                      onClick={nextStep}
-                      className="px-8 py-3 bg-blue-800 text-white rounded-md hover:bg-blue-700 transition-colors font-medium text-lg"
-                    >
-                      Continuer
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Étape 2: Informations personnelles */}
-              {currentStep === 2 && (
                 <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-8">
                   <h2 className="text-2xl font-semibold text-center text-blue-800 mb-8">Vos informations personnelles</h2>
                   
@@ -296,9 +320,14 @@ export default function Membership() {
                           name="firstName"
                           value={formData.firstName}
                           onChange={handleChange}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                            errors.firstName ? 'border-red-500' : 'border-gray-300'
+                          }`}
                           required
                         />
+                        {errors.firstName && (
+                          <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>
+                        )}
                       </div>
                       
                       <div>
@@ -311,28 +340,92 @@ export default function Membership() {
                           name="lastName"
                           value={formData.lastName}
                           onChange={handleChange}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                            errors.lastName ? 'border-red-500' : 'border-gray-300'
+                          }`}
                           required
                         />
+                        {errors.lastName && (
+                          <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="mb-6">
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                        Adresse email *
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                          errors.email ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        required
+                      />
+                      {errors.email && (
+                        <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      <div>
+                        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                          Mot de passe *
+                        </label>
+                        <div className="relative">
+                          <input
+                            type={showPassword ? "text" : "password"}
+                            id="password"
+                            name="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                              errors.password ? 'border-red-500' : 'border-gray-300'
+                            }`}
+                            required
+                          />
+                          <button
+                            type="button"
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? '👁️' : '👁️‍🗨️'}
+                          </button>
+                        </div>
+                        {errors.password && (
+                          <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+                        )}
+                        <p className="text-xs text-gray-500 mt-1">
+                          Minimum 6 caractères
+                        </p>
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                          Confirmer le mot de passe *
+                        </label>
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          id="confirmPassword"
+                          name="confirmPassword"
+                          value={formData.confirmPassword}
+                          onChange={handleChange}
+                          className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                            errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                          }`}
+                          required
+                        />
+                        {errors.confirmPassword && (
+                          <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
+                        )}
                       </div>
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                      <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                          Adresse email *
-                        </label>
-                        <input
-                          type="email"
-                          id="email"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleChange}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          required
-                        />
-                      </div>
-                      
                       <div>
                         <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
                           Téléphone
@@ -346,21 +439,26 @@ export default function Membership() {
                           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                       </div>
-                    </div>
-                    
-                    <div className="mb-6">
-                      <label htmlFor="profession" className="block text-sm font-medium text-gray-700 mb-1">
-                        Profession *
-                      </label>
-                      <input
-                        type="text"
-                        id="profession"
-                        name="profession"
-                        value={formData.profession}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        required
-                      />
+                      
+                      <div>
+                        <label htmlFor="profession" className="block text-sm font-medium text-gray-700 mb-1">
+                          Profession *
+                        </label>
+                        <input
+                          type="text"
+                          id="profession"
+                          name="profession"
+                          value={formData.profession}
+                          onChange={handleChange}
+                          className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                            errors.profession ? 'border-red-500' : 'border-gray-300'
+                          }`}
+                          required
+                        />
+                        {errors.profession && (
+                          <p className="text-red-500 text-sm mt-1">{errors.profession}</p>
+                        )}
+                      </div>
                     </div>
                     
                     <div className="mb-6">
@@ -377,6 +475,24 @@ export default function Membership() {
                       />
                     </div>
                     
+                    <div className="text-center">
+                      <button 
+                        onClick={nextStep}
+                        className="px-8 py-3 bg-blue-800 text-white rounded-md hover:bg-blue-700 transition-colors font-medium text-lg"
+                      >
+                        Continuer
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+
+              {/* Étape 2: Adresse et conditions */}
+              {currentStep === 2 && (
+                <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-8">
+                  <h2 className="text-2xl font-semibold text-center text-blue-800 mb-8">Votre adresse et conditions</h2>
+                  
+                  <form onSubmit={(e) => e.preventDefault()}>
                     <div className="mb-6">
                       <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
                         Adresse *
@@ -387,9 +503,14 @@ export default function Membership() {
                         name="address"
                         value={formData.address}
                         onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                          errors.address ? 'border-red-500' : 'border-gray-300'
+                        }`}
                         required
                       />
+                      {errors.address && (
+                        <p className="text-red-500 text-sm mt-1">{errors.address}</p>
+                      )}
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -403,9 +524,14 @@ export default function Membership() {
                           name="postalCode"
                           value={formData.postalCode}
                           onChange={handleChange}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                            errors.postalCode ? 'border-red-500' : 'border-gray-300'
+                          }`}
                           required
                         />
+                        {errors.postalCode && (
+                          <p className="text-red-500 text-sm mt-1">{errors.postalCode}</p>
+                        )}
                       </div>
                       
                       <div>
@@ -418,9 +544,14 @@ export default function Membership() {
                           name="city"
                           value={formData.city}
                           onChange={handleChange}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                            errors.city ? 'border-red-500' : 'border-gray-300'
+                          }`}
                           required
                         />
+                        {errors.city && (
+                          <p className="text-red-500 text-sm mt-1">{errors.city}</p>
+                        )}
                       </div>
                       
                       <div>
@@ -444,20 +575,54 @@ export default function Membership() {
                         </select>
                       </div>
                     </div>
+
+                    {/* Choix de la formule */}
+                    <div className="mb-8">
+                      <h3 className="text-lg font-semibold text-blue-800 mb-4">Choisissez votre formule d'adhésion</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {membershipPlans.map(plan => (
+                          <div 
+                            key={plan.id} 
+                            className={`bg-white rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                              selectedPlan === plan.id ? 'border-blue-800 bg-blue-50' : 'border-gray-200'
+                            } ${plan.recommended ? 'ring-2 ring-yellow-500' : ''}`}
+                            onClick={() => handlePlanChange(plan.id)}
+                          >
+                            {plan.recommended && (
+                              <div className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full inline-block mb-2">
+                                Recommandé
+                              </div>
+                            )}
+                            <h4 className="font-semibold text-blue-800">{plan.title}</h4>
+                            <div className="text-lg font-bold text-blue-800 mt-2">
+                              {plan.price}€<span className="text-sm font-normal text-gray-600">/{plan.period}</span>
+                            </div>
+                            <p className="text-sm text-gray-600 mt-1">{plan.description}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                     
-                    <div className="flex items-center mb-6">
-                      <input
-                        type="checkbox"
-                        id="acceptTerms"
-                        name="acceptTerms"
-                        checked={formData.acceptTerms}
-                        onChange={handleChange}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                        required
-                      />
-                      <label htmlFor="acceptTerms" className="ml-2 block text-sm text-gray-700">
-                        J'accepte les <a href="#" className="text-blue-600 hover:underline">conditions générales</a> et la <a href="#" className="text-blue-600 hover:underline">politique de confidentialité</a> *
-                      </label>
+                    <div className="mb-6">
+                      <div className={`p-4 border rounded-md ${errors.acceptTerms ? 'border-red-500 bg-red-50' : 'border-gray-200'}`}>
+                        <div className="flex items-start">
+                          <input
+                            type="checkbox"
+                            id="acceptTerms"
+                            name="acceptTerms"
+                            checked={formData.acceptTerms}
+                            onChange={handleChange}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-1"
+                            required
+                          />
+                          <label htmlFor="acceptTerms" className="ml-2 block text-sm text-gray-700">
+                            J'accepte les <a href="#" className="text-blue-600 hover:underline">conditions générales</a> et la <a href="#" className="text-blue-600 hover:underline">politique de confidentialité</a> *
+                          </label>
+                        </div>
+                        {errors.acceptTerms && (
+                          <p className="text-red-500 text-sm mt-1">{errors.acceptTerms}</p>
+                        )}
+                      </div>
                     </div>
                     
                     <div className="flex justify-between">
@@ -503,7 +668,7 @@ export default function Membership() {
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold text-blue-800 mb-4">Moyen de paiement</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="border-2 border-gray-300 rounded-lg p-4 flex items-center cursor-pointer hover:border-blue-500">
+                      <div className="border-2 border-blue-500 rounded-lg p-4 flex items-center cursor-pointer bg-blue-50">
                         <div className="h-6 w-6 rounded-full border-2 border-blue-500 mr-3 flex items-center justify-center">
                           <div className="h-3 w-3 rounded-full bg-blue-500"></div>
                         </div>
@@ -610,12 +775,12 @@ export default function Membership() {
                 <h3 className="font-semibold text-blue-800 mb-2">Prochaines étapes :</h3>
                 <ul className="text-left list-disc list-inside text-gray-700 space-y-1">
                   <li>Vous recevrez votre carte de membre sous 10 jours ouvrables</li>
-                  <li>Accédez à votre espace membre avec les identifiants envoyés par email</li>
+                  <li>Accédez à votre espace membre avec vos identifiants</li>
                   <li>Consultez notre calendrier d'événements pour votre première participation</li>
                 </ul>
               </div>
               <button 
-                onClick={() => setIsSubmitted(false)}
+                onClick={() => window.location.href = '/'}
                 className="px-6 py-2 bg-blue-800 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
               >
                 Retour à l'accueil
