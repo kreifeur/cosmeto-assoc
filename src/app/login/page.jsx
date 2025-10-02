@@ -269,10 +269,20 @@ export default function Login() {
 
             <div className="mt-6 p-4 bg-blue-50 rounded-md">
               <h3 className="text-sm font-medium text-blue-800 mb-2">
-                Compte de démonstration
+                Compte de démonstration membre
               </h3>
               <p className="text-xs text-blue-600">
                 Email: <span className="font-mono">ibrahim@example.com</span>
+                <br />
+                Mot de passe: <span className="font-mono">passe123</span>
+              </p>
+              <br />
+
+              <h3 className="text-sm font-medium text-blue-800 mb-2">
+                Compte de démonstration Admin
+              </h3>
+              <p className="text-xs text-blue-600">
+                Email: <span className="font-mono">brahimadmin@gmail.com</span>
                 <br />
                 Mot de passe: <span className="font-mono">passe123</span>
               </p>

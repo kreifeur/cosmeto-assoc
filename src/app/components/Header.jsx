@@ -67,7 +67,7 @@ const Header = () => {
             Connexion
           </a>
           <a
-            href="/register"
+            href="/membership"
             className="px-4 py-2 bg-yellow-500 text-blue-900 rounded-md hover:bg-yellow-400 transition-colors font-medium"
           >
             Adhérer
