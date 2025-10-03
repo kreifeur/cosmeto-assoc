@@ -45,10 +45,10 @@ export default function AdminDashboard() {
           return;
         }
         
-        if (userRole !== "admin") {
+        /* if (userRole !== "admin") {
           router.push("/dashboard");
           return;
-        }
+        } */
       };
 
       checkAuth();
