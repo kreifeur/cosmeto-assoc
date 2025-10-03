@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import AdminTabs from "./components/AdminTabs";
 import OverviewTab from "./components/OverviewTab";
 import EventsTab from "./components/EventsTab";
@@ -21,10 +22,48 @@ export default function AdminDashboard() {
     totalResources: 0,
     newMessages: 0,
   });
-
+  const [isClient, setIsClient] = useState(false);
   const [recentActivities, setRecentActivities] = useState([]);
   const [pendingApprovals, setPendingApprovals] = useState([]);
   const [showEventModal, setShowEventModal] = useState(false);
+  const router = useRouter();
+
+  // Vérifier que nous sommes côté client
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Vérifier l'authentification côté client seulement
+  useEffect(() => {
+    if (isClient) {
+      const checkAuth = () => {
+        const authToken = localStorage.getItem("authToken");
+        const userRole = localStorage.getItem("userRole");
+        
+        if (!authToken) {
+          router.push("/auth/login");
+          return;
+        }
+        
+        if (userRole !== "admin") {
+          router.push("/dashboard");
+          return;
+        }
+      };
+
+      checkAuth();
+    }
+  }, [isClient, router]);
+
+  // Fonction de déconnexion
+  const handleLogout = () => {
+    if (isClient) {
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("userData");
+      localStorage.removeItem("userRole");
+      router.push("/auth/login");
+    }
+  };
 
   // Charger les données au démarrage
   useEffect(() => {
@@ -118,6 +157,7 @@ export default function AdminDashboard() {
       showEventModal,
       setShowEventModal,
       setStats,
+      isClient, // Passer isClient aux composants enfants
     };
 
     switch (activeTab) {
@@ -136,6 +176,18 @@ export default function AdminDashboard() {
     }
   };
 
+  // Afficher un loader pendant le rendu côté serveur
+  if (!isClient) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-800 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Chargement du tableau de bord...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto mt-4">
       <div className="flex justify-between items-center mb-6">
@@ -147,7 +199,15 @@ export default function AdminDashboard() {
             Gérez votre association et surveillez l'activité des membres
           </p>
         </div>
-        {/* <UserMenu /> */}
+        <button
+          onClick={handleLogout}
+          className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors flex items-center space-x-2"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          <span>Déconnexion</span>
+        </button>
       </div>
 
       <AdminTabs activeTab={activeTab} setActiveTab={setActiveTab} />
