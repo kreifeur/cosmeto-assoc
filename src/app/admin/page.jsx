@@ -41,7 +41,7 @@ export default function AdminDashboard() {
         const userRole = localStorage.getItem("userRole");
         
         if (!authToken) {
-          router.push("/auth/login");
+          router.push("/login");
           return;
         }
         
@@ -61,7 +61,7 @@ export default function AdminDashboard() {
       localStorage.removeItem("authToken");
       localStorage.removeItem("userData");
       localStorage.removeItem("userRole");
-      router.push("/auth/login");
+      router.push("/login");
     }
   };
 
