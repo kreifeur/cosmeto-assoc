@@ -2,7 +2,7 @@ export default function AdminTabs({ activeTab, setActiveTab }) {
   const tabs = [
     { id: 'overview', name: 'Aperçu' },
     { id: 'members', name: 'Membres' },
-    { id: 'content', name: 'Contenus' },
+    { id: 'content', name: 'blogs' },
     { id: 'events', name: 'Événements' },
     { id: 'finances', name: 'Finances' },
     { id: 'reports', name: 'Rapports' }
