@@ -141,7 +141,7 @@ export default function Membership() {
         firstName: formData.firstName,
         lastName: formData.lastName,
         phone: formData.phone,
-        professionalStatus: formData.profession.toLowerCase() || 'professional',
+        professionalStatus: 'professional',
         domainOfInterest: ["skincare", "research"]
       };
 
