@@ -147,7 +147,7 @@ export default function AdminDashboard() {
             Gérez votre association et surveillez l'activité des membres
           </p>
         </div>
-        <UserMenu />
+        {/* <UserMenu /> */}
       </div>
 
       <AdminTabs activeTab={activeTab} setActiveTab={setActiveTab} />

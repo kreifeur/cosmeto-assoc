@@ -27,7 +27,7 @@ export default function UserMenu() {
     // Supprimer les données d'authentification
     localStorage.removeItem("authToken");
     localStorage.removeItem("user");
-    localStorage.removeItem("userRole");
+    /* localStorage.removeItem("userRole"); */
 
     // Rediriger vers la page de connexion
     router.push("/login");
